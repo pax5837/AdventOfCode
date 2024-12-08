@@ -1,21 +1,24 @@
 ﻿// https://adventofcode.com/2024/day/4
+// https://adventofcode.com/2024/day/4#part2
 
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 
 Regex xmasRegex = new Regex("XMAS", RegexOptions.Compiled);
 
-var lines = File.ReadAllLines("InputDataExampleSmall.txt").ToImmutableList();
+var lines = File.ReadAllLines("InputData.txt").ToImmutableList();
 
 var contentArray = To2DArray(lines);
 
 var columns = GetColumns(contentArray);
 
-var minus45Diagonals = GetMinus45DegDiagonals(contentArray);
+var minus45Diagonals = Get45DegDiagonals(contentArray, DiagonalDirection.Minus45Deg);
+var plus45Diagonals = Get45DegDiagonals(contentArray, DiagonalDirection.Plus45Deg);
 
 var xmasCount = lines.Select(CountXmas)
 	.Concat(columns.Select(CountXmas))
 	.Concat(minus45Diagonals.Select(CountXmas))
+	.Concat(plus45Diagonals.Select(CountXmas))
 	.Sum();
 
 Console.WriteLine(xmasCount);
@@ -67,7 +70,7 @@ ImmutableList<string> GetColumns(char[,] inputArray)
 	return result.ToImmutableList();
 }
 
-ImmutableList<string> GetMinus45DegDiagonals(char[,] inputArray)
+ImmutableList<string> Get45DegDiagonals(char[,] inputArray, DiagonalDirection direction)
 {
 	var result = new List<string>();
 
@@ -81,8 +84,12 @@ ImmutableList<string> GetMinus45DegDiagonals(char[,] inputArray)
 		while (InArray(li, co, inputArray))
 		{
 			charList.Add(inputArray[li, co]);
-			li++;
-			co++;
+			(li, co) = direction switch
+			{
+				DiagonalDirection.Minus45Deg => (li + 1, co + 1),
+				DiagonalDirection.Plus45Deg => (li - 1, co + 1),
+				_ => throw new ArgumentOutOfRangeException()
+			};
 		}
 
 		result.Add(new string(charList.ToArray()));
@@ -92,14 +99,23 @@ ImmutableList<string> GetMinus45DegDiagonals(char[,] inputArray)
 	{
 		var charList = new List<char>();
 
-		var li = 0;
+		var li = direction switch
+		{
+			DiagonalDirection.Minus45Deg => 0,
+			DiagonalDirection.Plus45Deg => inputArray.GetUpperBound(0),
+			_ => throw new ArgumentOutOfRangeException()
+		};
 		var co = colNr;
 
 		while (InArray(li, co, inputArray))
 		{
 			charList.Add(inputArray[li, co]);
-			li++;
-			co++;
+			(li, co) = direction switch
+			{
+				DiagonalDirection.Minus45Deg => (li + 1, co + 1),
+				DiagonalDirection.Plus45Deg => (li - 1, co + 1),
+				_ => throw new ArgumentOutOfRangeException()
+			};
 		}
 
 		result.Add(new string(charList.ToArray()));
@@ -114,4 +130,10 @@ bool InArray(int lineIndex, int columnIndex, char[,] chars)
 	       && lineIndex <= chars.GetUpperBound(0)
 	       && columnIndex >= 0
 	       && columnIndex <= chars.GetUpperBound(1);
+}
+
+enum DiagonalDirection
+{
+	Plus45Deg,
+	Minus45Deg,
 }
