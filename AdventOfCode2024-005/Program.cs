@@ -4,7 +4,7 @@
 using System.Collections.Immutable;
 using AdventOfCode2024_005;
 
-var folder = "ExampleData";
+var folder = "InputData";
 var pageOrderingRulesLines = File.ReadAllLines($"./{folder}/PageOrderingRules.txt").ToImmutableList();
 var pagesToProduceLines = File.ReadAllLines($"./{folder}/PagesToProduce.txt").ToImmutableList();
 

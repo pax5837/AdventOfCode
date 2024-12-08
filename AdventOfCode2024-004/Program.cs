@@ -2,7 +2,6 @@
 // https://adventofcode.com/2024/day/4#part2
 
 using System.Collections.Immutable;
-using System.Text.RegularExpressions;
 using AdventOfCode2024_004;
 
 
