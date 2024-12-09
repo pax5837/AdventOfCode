@@ -6,13 +6,13 @@ namespace AdventOfCode2024_004;
 public static class Part1
 {
 	private static readonly Regex xmasRegex = new Regex("XMAS", RegexOptions.Compiled);
-	
-    public static void Solve(ImmutableList<string> lines, char[,] contentArray)
-    {
-        var columns = GetColumns(contentArray);
 
-        var minus45Diagonals = Get45DegDiagonals(contentArray, DiagonalDirection.Minus45Deg);
-        var plus45Diagonals = Get45DegDiagonals(contentArray, DiagonalDirection.Plus45Deg);
+	public static void Solve(ImmutableList<string> lines, char[,] contentArray)
+	{
+		var columns = GetColumns(contentArray);
+
+		var minus45Diagonals = Get45DegDiagonals(contentArray, DiagonalDirection.Minus45Deg);
+		var plus45Diagonals = Get45DegDiagonals(contentArray, DiagonalDirection.Plus45Deg);
 
         var xmasCount = lines.Select(CountXmas)
             .Concat(columns.Select(CountXmas))
@@ -23,8 +23,8 @@ public static class Part1
         Console.WriteLine(xmasCount);
 
     }
-    
-    
+
+
 	private static int CountXmas(string content)
 	{
 		var reversedContent = string.Join("", content.Reverse().ToArray());
