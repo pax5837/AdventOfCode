@@ -14,7 +14,7 @@ internal class Guard
 		CurrentDirection = currentDirection;
 	}
 
-	public bool MoveAndReturnWhetherInMap(IImmutableDictionary<(int XPos, int YPos), Position> allPositions)
+	public bool MoveAndReturnWhetherInMap(IImmutableDictionary<Coordinates, Position> allPositions)
 	{
 		if (CurrentPosition is null)
 		{

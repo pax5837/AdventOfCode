@@ -8,30 +8,18 @@ public class Position
 
 	public bool Visited { get; set; }
 
-	public int XPos { get; }
+	public Coordinates Coordinates { get; }
 
-	public int YPos { get; }
-
-	public Position(int xPos, int yPos, bool isObstacle, bool visited)
+	public Position(Coordinates coordinates, bool isObstacle, bool visited)
 	{
-		XPos = xPos;
-		YPos = yPos;
+		Coordinates = coordinates;
 		IsObstacle = isObstacle;
 		Visited = visited;
 	}
 
-	public Position? Neighbour(Direction direction, IImmutableDictionary<(int XPos, int YPos), Position> allPositions)
+	public Position? Neighbour(Direction direction, IImmutableDictionary<Coordinates, Position> allPositions)
 	{
-		var newCoordinates= direction switch
-		{
-			Direction.North => (XPos, YPos - 1),
-			Direction.South => (XPos,YPos + 1),
-			Direction.East => (XPos + 1, YPos),
-			Direction.West => (XPos - 1, YPos),
-			_ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null),
-		};
-
-		return allPositions.TryGetValue(newCoordinates, out var position)
+		return allPositions.TryGetValue(Coordinates.GetNeighboringCoordinates(direction), out var position)
 			? position
 			: null;
 	}
