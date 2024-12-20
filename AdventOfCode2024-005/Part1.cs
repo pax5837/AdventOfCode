@@ -9,27 +9,22 @@ internal static class Part1
         IImmutableList<string> pagesToProduceLines)
     {
         var precedingPagesByPage = GetPrecedingPagesByPage(pageOrderingRulesLines);
-        var pagesToProduce = pagesToProduceLines
-            .Select(line => line
-                .Split(",", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-                .Select(int.Parse)
-                .ToImmutableList())
-            .ToImmutableList();
 
-        var pagesToProduceWithCorrectOrdering = pagesToProduce
+        var sumOfMiddlePages = pagesToProduceLines
+            .Select(ExtractIntegers)
             .Where(ptp => IsOrderingRespected(ptp, precedingPagesByPage))
-            .ToImmutableList();
-
-        // foreach (var x in pagesToProduceWithCorrectOrdering)
-        // {
-        //     Console.WriteLine(string.Join(", ", x));
-        // }
-
-        var sumOfMidelPages = pagesToProduceWithCorrectOrdering
             .Select(pstp => pstp[pstp.Count / 2])
             .Sum();
 
-        Console.WriteLine(sumOfMidelPages);
+        Console.WriteLine(sumOfMiddlePages);
+    }
+
+    private static ImmutableList<int> ExtractIntegers(string line)
+    {
+        return line
+            .Split(",", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+            .Select(int.Parse)
+            .ToImmutableList();
     }
 
     private static bool IsOrderingRespected(ImmutableList<int> pagesToProduce, ILookup<int, int> precedingPagesByPage)
