@@ -4,11 +4,11 @@ namespace AdventOfCode20024_006;
 
 internal static class Part2
 {
-	public static void Process(ImmutableList<string> mapLines, IImmutableList<Coordinates> VisitedCoordinatesPart1)
+	public static void Process(ImmutableList<string> mapLines, IImmutableList<Coordinates> visitedCoordinatesPart1)
 	{
 		var (allInitialPositions, startingPosition) = PositionExtractor.ExtractPositions(mapLines);
 
-		var count = VisitedCoordinatesPart1
+		var count = visitedCoordinatesPart1
 			.Select((coordinates, index) => PerformTestForOneModifiedPositionAndReturnWhetherLoop(
 				oneBasedIndex: index + 1,
 				allPositions: CloneAllPositions(allInitialPositions),
