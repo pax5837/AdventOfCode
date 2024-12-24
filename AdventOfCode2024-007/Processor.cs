@@ -45,31 +45,24 @@ internal static class Processor
     {
         var oc2 = oc.Prepend(Operators.Addition).ToImmutableList();
 
-        long result = 0;
-        for (int i = 0; i < eqn.Operands.Count(); i++)
-        {
-            switch (oc2[i])
-            {
-                case Operators.Addition:
-                    result += eqn.Operands[i];
-                    break;
-                case Operators.Multiplication:
-                    result *= eqn.Operands[i];
-                    break;
-                case Operators.Concatenation:
-                    var rank = eqn.Operands[i].ToString().Length;
-                    result = (result * (long)Math.Pow(10, rank)) + eqn.Operands[i];
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
+        var res = eqn.Operands
+            .Select((operand, index) => (operand, oc2[index]))
+            .Aggregate(
+                seed: 0l,
+                func: (acc, pair) => Acc(acc, pair.operand, pair.Item2));
+        
+        return res == eqn.Result;
+    }
 
-        var isValid = result == eqn.Result;
-        
-   
-        
-        return isValid;
+    private static long Acc(long previous, long operand, Operators op)
+    {
+        return op switch
+        {
+            Operators.Addition => previous + operand,
+            Operators.Multiplication => previous * operand,
+            Operators.Concatenation => previous * (long)Math.Pow(10, operand.ToString().Length) + operand,
+            _ => throw new ArgumentOutOfRangeException(nameof(op), op, null)
+        };
     }
 
     static IImmutableList<IImmutableList<Operators>> CombineCollections(IImmutableList<IImmutableList<Operators>> collections)
