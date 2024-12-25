@@ -17,10 +17,13 @@ Processor.Process(eqNumbers, [Operator.Addition, Operator.Multiplication]);
 // Execute("proc 1 part 2",
 //     () => Processor.Process(eqNumbers, [Operator.Addition, Operator.Multiplication, Operator.Concatenation]));
 
-
-Execute(
-        "proc2 part2, expected 362646859298554", 
-        () => Processor2.Process(eqNumbers, [Operator.Addition, Operator.Multiplication, Operator.Concatenation]));
+var chuckSizes = new[] { 2, 10, 20, 25, 30, 35, 35, 35, 40, 50, 75, 100, 150, 200, 300, 400 };
+foreach (var chunkSize in chuckSizes)
+{
+    Execute(
+        $"proc2 part2, chunck size: {chunkSize}, expected 362646859298554", 
+        () => Processor2.Process(eqNumbers, [Operator.Addition, Operator.Multiplication, Operator.Concatenation], chunkSize));
+}
 
 void Execute(string name, Action action)
 {

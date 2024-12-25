@@ -6,12 +6,14 @@ internal static class Processor2
 {
     public static void Process(
         IImmutableList<Equation> equations,
-        IImmutableList<Operator> possibleOperators)
+        IImmutableList<Operator> possibleOperators,
+        int chunkSize)
     {
         var operatorCombinationsByOperandCount 
             = GetOperatorCombinationsByOperandCount(possibleOperators, equations.Max(x => x.Operands.Count));
         
         var tasks = equations
+            .Chunk(chunkSize)
             .Select(eqn => Calculate(eqn, operatorCombinationsByOperandCount));
         
         var r = Task.WhenAll(tasks).GetAwaiter().GetResult();
@@ -28,6 +30,16 @@ internal static class Processor2
     private static Task<long> Calculate(Equation eqn, IImmutableDictionary<int, Ops> ops)
     {
         return Task.Factory.StartNew(() => eqn.IsSolvable(ops) ? eqn.Result : 0);
+    }
+    
+    private static Task<long> Calculate(Equation[] eqns, IImmutableDictionary<int, Ops> ops)
+    {
+        return Task.Factory.StartNew(() =>
+        {
+            return eqns
+                .Where(x => x.IsSolvable(ops))
+                .Sum(eqn => eqn.Result);
+        });
     }
     
     private static IImmutableDictionary<int, Ops>
