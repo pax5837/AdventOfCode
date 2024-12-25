@@ -1,6 +1,6 @@
 ﻿namespace AdventOfCode2024_007;
 
-internal enum Operators
+internal enum Operator
 {
     Addition,
     Multiplication,

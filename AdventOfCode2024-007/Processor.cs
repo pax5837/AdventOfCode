@@ -5,10 +5,10 @@ namespace AdventOfCode2024_007;
 internal static class Processor
 {
     public static void Process(
-        IImmutableList<EquationNumbers> equationNumbers,
-        IImmutableList<Operators> possibleOperators)
+        IImmutableList<Equation> equations,
+        IImmutableList<Operator> possibleOperators)
     {
-        var result = equationNumbers
+        var result = equations
             .Where(x => IsValid1(x, possibleOperators))
             .Sum(eqn => eqn.Result);
         
@@ -16,14 +16,14 @@ internal static class Processor
     }
 
     private static bool IsValid1(
-        EquationNumbers eqn,
-        IImmutableList<Operators> possibleOperators)
+        Equation eqn,
+        IImmutableList<Operator> possibleOperators)
     {
         // Console.WriteLine($"\n{eqn.Result}: {string.Join(" ", eqn.Operands)}");
         
-        IImmutableList<IImmutableList<Operators>> operators = Enumerable
+        IImmutableList<IImmutableList<Operator>> operators = Enumerable
             .Range(0, eqn.Operands.Count - 1)
-            .Select(_ => possibleOperators.ToImmutableList() as IImmutableList<Operators>)
+            .Select(_ => possibleOperators.ToImmutableList() as IImmutableList<Operator>)
             .ToImmutableList();
         
         var operatorCombinations = CombineCollections(operators);
@@ -36,14 +36,14 @@ internal static class Processor
         var isValid =  operatorCombinations
             .Any(oc => IsValid(eqn, oc));
         
-        Console.WriteLine($"{eqn.Result}: {string.Join(" ", eqn.Operands)} {isValid}");
+        // Console.WriteLine($"{eqn.Result}: {string.Join(" ", eqn.Operands)} {isValid}");
         return isValid;
 
     }
 
-    private static bool IsValid(EquationNumbers eqn, IImmutableList<Operators> oc)
+    private static bool IsValid(Equation eqn, IImmutableList<Operator> oc)
     {
-        var oc2 = oc.Prepend(Operators.Addition).ToImmutableList();
+        var oc2 = oc.Prepend(Operator.Addition).ToImmutableList();
 
         var res = eqn.Operands
             .Select((operand, index) => (operand, oc2[index]))
@@ -54,20 +54,20 @@ internal static class Processor
         return res == eqn.Result;
     }
 
-    private static long Acc(long previous, long operand, Operators op)
+    private static long Acc(long previous, long operand, Operator op)
     {
         return op switch
         {
-            Operators.Addition => previous + operand,
-            Operators.Multiplication => previous * operand,
-            Operators.Concatenation => previous * (long)Math.Pow(10, operand.ToString().Length) + operand,
+            Operator.Addition => previous + operand,
+            Operator.Multiplication => previous * operand,
+            Operator.Concatenation => previous * (long)Math.Pow(10, operand.ToString().Length) + operand,
             _ => throw new ArgumentOutOfRangeException(nameof(op), op, null)
         };
     }
 
-    static IImmutableList<IImmutableList<Operators>> CombineCollections(IImmutableList<IImmutableList<Operators>> collections)
+    static IImmutableList<IImmutableList<Operator>> CombineCollections(IImmutableList<IImmutableList<Operator>> collections)
     {
-        IImmutableList<IImmutableList<Operators>> seed = [[]];
+        IImmutableList<IImmutableList<Operator>> seed = [[]];
         
         return collections.Aggregate(
             seed: seed, // Seed with an empty combination
@@ -75,14 +75,14 @@ internal static class Processor
         ).ToImmutableList();
     }
 
-    private static IImmutableList<IImmutableList<Operators>> Aggregate(
-        IImmutableList<IImmutableList<Operators>> current,
-        IImmutableList<Operators> operators)
+    private static IImmutableList<IImmutableList<Operator>> Aggregate(
+        IImmutableList<IImmutableList<Operator>> current,
+        IImmutableList<Operator> operators)
     {
         return current
             .SelectMany(
                 collectionSelector: _ => operators,
-                resultSelector: (c, item) => c.Append(element: item).ToImmutableList() as IImmutableList<Operators>)
+                resultSelector: (c, item) => c.Append(element: item).ToImmutableList() as IImmutableList<Operator>)
             .ToImmutableList();
     }
 }
