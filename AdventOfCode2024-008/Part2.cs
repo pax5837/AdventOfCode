@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace AdventOdCode2024_008;
 
-internal static class Part1
+internal static class Part2
 {
 	public static string Process(IImmutableList<string> lines)
 	{
@@ -38,7 +38,7 @@ internal static class Part1
 
 		return Enumerable
 			.Range(currentIndex + 1, size - 1 - currentIndex)
-			.SelectMany(index => pos.Get2To1AntiNodePositions(freqGroup[index], maxCoordinates))
+			.SelectMany(index => pos.GetInlineAntiNodePositions(freqGroup[index], maxCoordinates))
 			.ToList();
 	}
 }
