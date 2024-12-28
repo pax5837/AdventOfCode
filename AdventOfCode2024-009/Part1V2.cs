@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace AdventOfCode2024_009;
 
-internal static class Part1
+internal static class Part1V2
 {
 	public static string Process(string line, bool withConsoleOutput = false)
 	{
@@ -23,30 +23,38 @@ internal static class Part1
 				.Take(blocks.Count(b => b.IsEmptyBlock)) // We can only replace so many empty blocks
 				.Where(b => b.IsFileBlock)); // Empty blocks are not candidates for displacement
 
-		var deFragmentedBlocks = blocks
-			.Select(b => ChooseBlock(b, candidatesForDisplacement))
-			.Where(b => b.IsFileBlock)
-			.Take(blocks.Count(b => b.IsFileBlock)) // To remove duplicates
-			.ToList();
+		var totalFileBlocks = blocks.Count(b => b.IsFileBlock);
 
-		if (withConsoleOutput)
-		{
-			foreach (var block in deFragmentedBlocks) Console.Write(block);
-			Console.WriteLine();
-		}
+		var result = blocks.Aggregate(
+			seed: new Blocks(),
+			func: (blocks, block) => SortBlock(blocks, block, candidatesForDisplacement, totalFileBlocks),
+			resultSelector: blocks => blocks.FileBlocks);
 
-		return deFragmentedBlocks
+		return result
 			.Select((b, index) => (long)index * (long)b.FileId!.Value)
 			.Sum()
 			.ToString();
 	}
 
-	private static Block ChooseBlock(Block block, Queue<Block> candidatesForDisplacement)
+	private static Blocks SortBlock(Blocks blocks, Block block, Queue<Block> candidatesForDisplacement,
+		int totalFileBlocks)
 	{
-		return block.FileId is not null || !candidatesForDisplacement.Any()
-			? block
-			: candidatesForDisplacement.Dequeue();
+		if (block.IsEmptyBlock)
+		{
+			blocks.EmptyBlocks.Add(block);
+			if (candidatesForDisplacement.TryDequeue(out var candidate))
+			{
+				blocks.FileBlocks.Add(candidate);
+			}
+		}
+		else if (blocks.FileBlocks.Count < totalFileBlocks)
+		{
+			blocks.FileBlocks.Add(block);
+		}
+
+		return blocks;
 	}
+
 
 	private static IEnumerable<Block> CreateBlock(char chr, int index)
 	{
@@ -55,5 +63,11 @@ internal static class Part1
 		return index % 2 == 0
 			? Enumerable.Range(0, length).Select(_ => new Block(index/2))
 			: Enumerable.Range(0, length).Select(_ => new Block(null));
+	}
+
+	private class Blocks
+	{
+		public List<Block> FileBlocks { get; } = new List<Block>();
+		public List<Block> EmptyBlocks { get; } = new List<Block>();
 	}
 }

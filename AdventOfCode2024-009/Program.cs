@@ -12,6 +12,7 @@ var lines = File.ReadAllLines($"./{folder}/input.txt").ToImmutableList();
 
 
 Execute("Part 1", () => Part1.Process(lines[0], false));
+Execute("Part 1 V2", () => Part1V2.Process(lines[0], false));
 
 void Execute(string name, Func<string> func)
 {
