@@ -19,9 +19,9 @@ internal static class Part1
 
 		var candidatesForDisplacement = new Queue<Block>(
 			blocks
+				.Where(b => b.IsFileBlock) // Empty blocks are not candidates for displacement
 				.Reverse()
-				.Take(blocks.Count(b => b.IsEmptyBlock)) // We can only replace so many empty blocks
-				.Where(b => b.IsFileBlock)); // Empty blocks are not candidates for displacement
+				.Take(blocks.Count(b => b.IsEmptyBlock))); // We can only replace so many empty blocks
 
 		var deFragmentedBlocks = blocks
 			.Select(b => ChooseBlock(b, candidatesForDisplacement))

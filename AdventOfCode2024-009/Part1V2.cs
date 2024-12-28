@@ -19,9 +19,9 @@ internal static class Part1V2
 
 		var candidatesForDisplacement = new Queue<Block>(
 			blocks
+				.Where(b => b.IsFileBlock) // Empty blocks are not candidates for displacement
 				.Reverse()
-				.Take(blocks.Count(b => b.IsEmptyBlock)) // We can only replace so many empty blocks
-				.Where(b => b.IsFileBlock)); // Empty blocks are not candidates for displacement
+				.Take(blocks.Count(b => b.IsEmptyBlock))); // We can only replace so many empty blocks
 
 		var totalFileBlocks = blocks.Count(b => b.IsFileBlock);
 
@@ -36,13 +36,16 @@ internal static class Part1V2
 			.ToString();
 	}
 
-	private static Blocks SortBlock(Blocks blocks, Block block, Queue<Block> candidatesForDisplacement,
+	private static Blocks SortBlock(
+		Blocks blocks,
+		Block block,
+		Queue<Block> candidatesForDisplacement,
 		int totalFileBlocks)
 	{
 		if (block.IsEmptyBlock)
 		{
 			blocks.EmptyBlocks.Add(block);
-			if (candidatesForDisplacement.TryDequeue(out var candidate))
+			if (candidatesForDisplacement.TryDequeue(out var candidate) && blocks.FileBlocks.Count < totalFileBlocks)
 			{
 				blocks.FileBlocks.Add(candidate);
 			}
