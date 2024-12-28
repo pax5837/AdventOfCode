@@ -20,11 +20,13 @@ internal static class Part1
 		var candidatesForDisplacement = new Queue<Block>(
 			blocks
 				.Reverse()
-				.Take(blocks.Count(b => b.Id is null))
-				.Where(b => b.Id is not null));
+				.Take(blocks.Count(b => b.Id is null)) // We can only replace so many empty blocks
+				.Where(b => b.Id is not null)); // Empty blocks are not candidates for displacement
 
 		var deFragmentedBlocks = blocks
 			.Select(b => ChooseBlock(b, candidatesForDisplacement))
+			.Where(b => b.Id is not null)
+			.Take(blocks.Count(b => b.Id is not null))
 			.ToList();
 
 		if (withConsoleOutput)
@@ -34,8 +36,6 @@ internal static class Part1
 		}
 
 		return deFragmentedBlocks
-			.Where(b => b.Id is not null)
-			.Take(blocks.Count(b => b.Id is not null))
 			.Select((b, index) => (long)index * (long)b.Id!.Value)
 			.Sum()
 			.ToString();
