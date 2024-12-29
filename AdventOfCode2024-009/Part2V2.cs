@@ -68,7 +68,7 @@ internal static class Part2V2
 		int beforeIndex,
 		HashSet<int> emptyBlockIndices)
 	{
-		for (var index = 0; index < beforeIndex; index++)
+		for (var index = emptyBlockIndices.Min(); index < beforeIndex; index++)
 		{
 			if (blocks[index].IsFileBlock)
 			{
