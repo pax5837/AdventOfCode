@@ -9,7 +9,7 @@ internal static class Part2V2
 	{
 		var blocks = line
 			.ToCharArray()
-			.SelectMany(BlockFactory.CreateBlocky)
+			.SelectMany(BlockFactory.CreateBlock)
 			.ToList();
 
 		PrintBlocks(withConsoleOutput, blocks);
@@ -32,41 +32,30 @@ internal static class Part2V2
 			Console.WriteLine(string.Join(", ", initialFilePositions.Values.Select(x => $"{x.FileId}:{x.firstIndex}-{x.lastIndex}")));
 		}
 
-		var doDefragment = true;
-
 		var fileIdsToProcess = new Queue<int>(blocks.Where(b => b.IsFileBlock).Select(b => b.FileId!.Value).Distinct().Reverse());
 
-		while (doDefragment)
+		while (fileIdsToProcess.TryDequeue(out var fileId))
 		{
-			if (fileIdsToProcess.TryDequeue(out var fileId))
+			var indexFirstFileBlock = initialFilePositions[fileId].firstIndex;
+			var indexLastFileBlock = initialFilePositions[fileId].lastIndex;
+			var size = indexLastFileBlock - indexFirstFileBlock + 1;
+			var firstIndexMatchingSpace = FindFirstIndexMatchingSpace(blocks, size, indexFirstFileBlock, emptyBlockIndices);
+			if (firstIndexMatchingSpace is null)
 			{
-				var indexFirstFileBlock = initialFilePositions[fileId].firstIndex;
-				var indexLastFileBlock = initialFilePositions[fileId].lastIndex;
-				var size = indexLastFileBlock - indexFirstFileBlock + 1;
-				var firstIndexMatchingSpace = FindFirstIndexMatchingSpace(blocks, size, indexFirstFileBlock, emptyBlockIndices);
-				if (firstIndexMatchingSpace is null)
-				{
-					continue;
-				}
-
-				for (int index = 0; index < size; index++)
-				{
-					var oldFileBlockIndex = index + indexFirstFileBlock;
-					var oldEmptyBlockIndex = index + firstIndexMatchingSpace!.Value;
-					(blocks[oldFileBlockIndex], blocks[oldEmptyBlockIndex]) = (blocks[oldEmptyBlockIndex], blocks[oldFileBlockIndex]);
-					emptyBlockIndices.Remove(oldEmptyBlockIndex);
-					emptyBlockIndices.Add(oldFileBlockIndex);
-				}
+				continue;
 			}
-			else
+
+			for (int index = 0; index < size; index++)
 			{
-				doDefragment = false;
+				var oldFileBlockIndex = index + indexFirstFileBlock;
+				var oldEmptyBlockIndex = index + firstIndexMatchingSpace!.Value;
+				(blocks[oldFileBlockIndex], blocks[oldEmptyBlockIndex]) = (blocks[oldEmptyBlockIndex], blocks[oldFileBlockIndex]);
+				emptyBlockIndices.Remove(oldEmptyBlockIndex);
+				emptyBlockIndices.Add(oldFileBlockIndex);
 			}
 
 			PrintBlocks(withConsoleOutput, blocks);
 		}
-
-
 
 		return blocks
 			.Select((b, index) => b.FileId is not null ? ((long)index * (long)b.FileId.Value) : 0l)
@@ -74,7 +63,7 @@ internal static class Part2V2
 			.ToString();
 	}
 
-	private static int? FindFirstIndexMatchingSpace(List<Blocky> blocks,
+	private static int? FindFirstIndexMatchingSpace(List<Block> blocks,
 		int size,
 		int beforeIndex,
 		HashSet<int> emptyBlockIndices)
@@ -132,7 +121,7 @@ internal static class Part2V2
 		return null;
 	}
 
-	private static void PrintBlocks(bool withConsoleOutput, List<Blocky> blocks)
+	private static void PrintBlocks(bool withConsoleOutput, List<Block> blocks)
 	{
 		if (withConsoleOutput)
 		{
