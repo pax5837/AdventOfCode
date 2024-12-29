@@ -11,12 +11,15 @@ internal static class Part2V3
 
 		PrintBlocks(withConsoleOutput, blocks);
 
-		var files = new Queue<FileBlockGroup>(
+		var filesToProcess = new Queue<FileBlockGroup>(
 			blocks
 				.Select((block, index) => (block, index))
 				.Where(x => x.block.IsFileBlock)
 				.GroupBy(x => x.block.FileId!.Value)
-				.Select(x => new FileBlockGroup(x.Key, x.Min(y => y.index), x.Max(y => y.index)))
+				.Select(x => new FileBlockGroup(
+					fileId: x.Key,
+					initialFirstIndex: x.Min(y => y.index),
+					initialLastIndex: x.Max(y => y.index)))
 				.Reverse());
 
 		var emptyBlockIndices = blocks
@@ -27,25 +30,29 @@ internal static class Part2V3
 
 		if (withConsoleOutput)
 		{
-			Console.WriteLine(string.Join(", ", files.Select(x => $"{x.FileId}:{x.InitialFirstIndex}-{x.InitialLastIndex}")));
+			Console.WriteLine(string.Join(", ", filesToProcess.Select(x => $"{x.FileId}:{x.InitialFirstIndex}-{x.Size}")));
 		}
 
-		while (files.TryDequeue(out var fileBlockGroup))
+		while (filesToProcess.TryDequeue(out var fileBlockGroup))
 		{
-			var size = fileBlockGroup.InitialLastIndex - fileBlockGroup.InitialFirstIndex + 1;
-			var firstIndexMatchingSpace = FindFirstIndexMatchingSpace(blocks, size, fileBlockGroup.InitialFirstIndex, emptyBlockIndices);
+			var firstIndexMatchingSpace = FindFirstIndexMatchingEmptyBlockGroupOrNull(
+				size: fileBlockGroup.Size,
+				beforeIndex: fileBlockGroup.InitialFirstIndex,
+				emptyBlockIndices: emptyBlockIndices);
+
 			if (firstIndexMatchingSpace is null)
 			{
 				continue;
 			}
 
-			for (int index = 0; index < size; index++)
+			for (int index = 0; index < fileBlockGroup.Size; index++)
 			{
-				var oldFileBlockIndex = index + fileBlockGroup.InitialFirstIndex;
-				var oldEmptyBlockIndex = index + firstIndexMatchingSpace!.Value;
-				(blocks[oldFileBlockIndex], blocks[oldEmptyBlockIndex]) = (blocks[oldEmptyBlockIndex], blocks[oldFileBlockIndex]);
-				emptyBlockIndices.Remove(oldEmptyBlockIndex);
-				emptyBlockIndices.Add(oldFileBlockIndex);
+				SwapBlocksAndUpdateEmptyBlockIndicesSet(
+					index: index,
+					fileBlockGroup: fileBlockGroup,
+					firstIndexMatchingSpace: firstIndexMatchingSpace!.Value,
+					blocks: blocks,
+					emptyBlockIndices: emptyBlockIndices);
 			}
 
 			PrintBlocks(withConsoleOutput, blocks);
@@ -57,20 +64,35 @@ internal static class Part2V3
 			.ToString();
 	}
 
-	private static int? FindFirstIndexMatchingSpace(
+	private static void SwapBlocksAndUpdateEmptyBlockIndicesSet(
+		int index,
+		FileBlockGroup fileBlockGroup,
+		int firstIndexMatchingSpace,
 		List<Block> blocks,
+		HashSet<int> emptyBlockIndices)
+	{
+		var oldFileBlockIndex = index + fileBlockGroup.InitialFirstIndex;
+		var oldEmptyBlockIndex = index + firstIndexMatchingSpace;
+		var newFileBlockIndex = oldEmptyBlockIndex;
+		var newEmptyBlockIndex = oldFileBlockIndex;
+		(blocks[newEmptyBlockIndex], blocks[newFileBlockIndex]) = (blocks[oldEmptyBlockIndex], blocks[oldFileBlockIndex]);
+		emptyBlockIndices.Remove(oldEmptyBlockIndex);
+		emptyBlockIndices.Add(newEmptyBlockIndex);
+	}
+
+	private static int? FindFirstIndexMatchingEmptyBlockGroupOrNull(
 		int size,
 		int beforeIndex,
 		HashSet<int> emptyBlockIndices)
 	{
 		for (var index = emptyBlockIndices.Min(); index < beforeIndex; index++)
 		{
-			if (blocks[index].IsFileBlock)
+			if (!emptyBlockIndices.Contains(index))
 			{
 				continue;
 			}
 
-			if (HasSpecifiedContiguousEmptyBlocks(size, emptyBlockIndices, index))
+			if (HasSpecifiedContiguousEmptyFollowingBlocks(size, emptyBlockIndices, index))
 			{
 				return index;
 			}
@@ -79,11 +101,11 @@ internal static class Part2V3
 		return null;
 	}
 
-	private static bool HasSpecifiedContiguousEmptyBlocks(int size, HashSet<int> emptyBlockIndices, int index)
+	private static bool HasSpecifiedContiguousEmptyFollowingBlocks(int size, HashSet<int> emptyBlockIndices, int index)
 	{
-		for (var i = 0; i < size; i++)
+		for (var followingIndex = 1; followingIndex < size; followingIndex++) // we tested first index of range, so we can start with second one, hence followingIndex starts with 1
 		{
-			if (!emptyBlockIndices.Contains(index + i))
+			if (!emptyBlockIndices.Contains(index + followingIndex))
 			{
 				return false;
 			}
@@ -100,5 +122,17 @@ internal static class Part2V3
 		}
 	}
 
-	record FileBlockGroup(int FileId, int InitialFirstIndex, int InitialLastIndex);
+	record FileBlockGroup
+	{
+		public int FileId { get; }
+		public int InitialFirstIndex { get; }
+		public int Size { get; }
+
+		public FileBlockGroup(int fileId, int initialFirstIndex, int initialLastIndex)
+		{
+			FileId = fileId;
+			InitialFirstIndex = initialFirstIndex;
+			Size = initialLastIndex - initialFirstIndex + 1;
+		}
+	}
 }
