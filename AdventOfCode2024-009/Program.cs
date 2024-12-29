@@ -13,7 +13,8 @@ var lines = File.ReadAllLines($"./{folder}/input.txt").ToImmutableList();
 var isExample = folder == exampleFolder;
 Execute("Part 1, should return 6398252054886", () => Part1.Process(lines[0], false && isExample));
 Execute("Part 1 V2, should return 6398252054886", () => Part1V2.Process(lines[0], false && isExample));
-Execute("Part 2, should return 6415666220005", () => Part2.Process(lines[0], true && isExample));
+// Execute("Part 2, should return 6415666220005", () => Part2.Process(lines[0], true && isExample));
+Execute("Part 2 V2, should return 6415666220005", () => Part2V2.Process(lines[0], true && isExample));
 
 void Execute(string name, Func<string> func)
 {
