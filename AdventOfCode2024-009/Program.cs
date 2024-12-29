@@ -4,15 +4,16 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using AdventOfCode2024_009;
 
-Console.WriteLine("[e] For example data\nother For real data");
-var useExampleData = Console.ReadLine().Equals("e", StringComparison.OrdinalIgnoreCase);
-
-var folder = useExampleData ? "ExampleData" : "InputData";
+const string exampleFolder = "ExampleData";
+var folder = exampleFolder;
+folder = "InputData";
 var lines = File.ReadAllLines($"./{folder}/input.txt").ToImmutableList();
 
 
-Execute("Part 1, should return 6398252054886", () => Part1.Process(lines[0], false));
-Execute("Part 1 V2, should return 6398252054886", () => Part1V2.Process(lines[0], false));
+var isExample = folder == exampleFolder;
+Execute("Part 1, should return 6398252054886", () => Part1.Process(lines[0], false && isExample));
+Execute("Part 1 V2, should return 6398252054886", () => Part1V2.Process(lines[0], false && isExample));
+Execute("Part 2, should return 6415666220005", () => Part2.Process(lines[0], true && isExample));
 
 void Execute(string name, Func<string> func)
 {

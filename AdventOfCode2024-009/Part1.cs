@@ -8,7 +8,7 @@ internal static class Part1
 	{
 		var blocks = line
 			.ToCharArray()
-			.SelectMany(CreateBlock)
+			.SelectMany(BlockFactory.CreateBlock)
 			.ToImmutableList();
 
 		if (withConsoleOutput)
@@ -46,14 +46,5 @@ internal static class Part1
 		return block.FileId is not null || !candidatesForDisplacement.Any()
 			? block
 			: candidatesForDisplacement.Dequeue();
-	}
-
-	private static IEnumerable<Block> CreateBlock(char chr, int index)
-	{
-		var length = int.Parse(chr.ToString());
-
-		return index % 2 == 0
-			? Enumerable.Range(0, length).Select(_ => new Block(index/2))
-			: Enumerable.Range(0, length).Select(_ => new Block(null));
 	}
 }
