@@ -10,6 +10,8 @@ internal class Position2
 
 	public List<Position2> OneLevelDownNeighbours { get; } = new();
 
+	public List<Position2> OneLevelUpNeighbours { get; } = new();
+
 	public Position2(Coordinates coordinates, int height)
 	{
 		Coordinates = coordinates;
