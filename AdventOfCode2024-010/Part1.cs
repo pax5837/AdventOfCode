@@ -29,9 +29,9 @@ internal static class Part1
 	{
 		foreach (var neighbour in position.OneLevelDownNeighbours)
 		{
-			neighbour.ConnectedTopCoordinates.Add(top.Coordinates);
+			var added = neighbour.ConnectedTopCoordinates.Add(top.Coordinates);
 
-			if (neighbour.Height > 0)
+			if (added && neighbour.Height > 0)
 			{
 				PopulateConnectionToTrailhead(neighbour, top, withConsoleOutput);
 			}
