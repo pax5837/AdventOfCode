@@ -4,14 +4,14 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using AdventOfCode2024_010;
 
-const bool isExample = true;
+const bool isExample = false;
 
 const string exampleFolder = "ExampleData";
 const string inputFolder = "InputData";
 var folder = isExample ? exampleFolder : inputFolder;
 var lines = File.ReadAllLines($"./{folder}/input.txt").ToImmutableList();
 
-var expectedPart1 = isExample ? "36" : "??";
+var expectedPart1 = isExample ? "36" : "760";
 var expectedPart2 = isExample ? "??" : "??";
 
 Execute("Part 1", expectedPart1, () => Part1.Process(lines, false && isExample));
