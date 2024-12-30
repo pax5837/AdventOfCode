@@ -12,9 +12,10 @@ var folder = isExample ? exampleFolder : inputFolder;
 var lines = File.ReadAllLines($"./{folder}/input.txt").ToImmutableList();
 
 var expectedPart1 = isExample ? "36" : "760";
-var expectedPart2 = isExample ? "??" : "??";
+var expectedPart2 = isExample ? "81" : "1764";
 
 Execute("Part 1", expectedPart1, () => Part1.Process(lines, false && isExample));
+Execute("Part 2", expectedPart2, () => Part2.Process(lines, false && isExample));
 
 void Execute(string name, string expected, Func<string> func)
 {
